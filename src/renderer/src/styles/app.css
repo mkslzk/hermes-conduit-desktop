@@ -5090,6 +5090,31 @@ html[data-window='quick'] body {
   font-weight: 600;
 }
 
+.menu-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.menu-search svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.menu-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+}
+
 .menu-title {
   padding: 6px 12px 4px;
   font-size: 12px;

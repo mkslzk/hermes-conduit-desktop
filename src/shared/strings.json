@@ -49588,5 +49588,35 @@
     "tr": "Bunu yalnızca Conduit’in ana penceresi yapabilir.",
     "zh-Hans": "只有 Conduit 的主窗口可以执行此操作。",
     "zh-Hant": "只有 Conduit 的主視窗可以執行此操作。"
+  },
+  "Search bots": {
+    "de": "Bots durchsuchen",
+    "es": "Buscar bots",
+    "fr": "Rechercher les bots",
+    "id": "Cari bot",
+    "it": "Cerca bot",
+    "ja": "ボットを検索",
+    "ko": "봇 검색",
+    "pl": "Szukaj botów",
+    "pt-BR": "Buscar bots",
+    "ru": "Поиск ботов",
+    "tr": "Botları ara",
+    "zh-Hans": "搜索机器人",
+    "zh-Hant": "搜尋機器人"
+  },
+  "No bots match": {
+    "de": "Keine Bots gefunden",
+    "es": "No hay bots coincidentes",
+    "fr": "Aucun bot correspondant",
+    "id": "Tidak ada bot yang cocok",
+    "it": "Nessun bot trovato",
+    "ja": "該当するボットがありません",
+    "ko": "일치하는 봇이 없습니다",
+    "pl": "Nie znaleziono botów",
+    "pt-BR": "Nenhum bot encontrado",
+    "ru": "Боты не найдены",
+    "tr": "Eşleşen bot yok",
+    "zh-Hans": "没有匹配的机器人",
+    "zh-Hant": "沒有符合的機器人"
   }
 }

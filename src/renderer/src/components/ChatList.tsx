@@ -3,6 +3,7 @@ import { opensInTab } from '../state/workspaceTabs'
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { underSource } from '../state/voiceList'
 import { includedInAll, newChatProfiles, profileGroups, readClosedSections, readGroupByProfile, readLeftOut, shownInAll, writeClosedSections, writeGroupByProfile, writeLeftOut } from '../state/profileGroups'
+import { matchesBot } from '../state/botSearch'
 import { foldedKeyForSelection, sectionFolded, sectionRows, startOfDay, timeLabel, type ChatRow, type UnreadProfile } from '../state/chats'
 import type { Bot } from '../state/bots'
 import { BotAvatar } from './BotsHome'
@@ -367,6 +368,8 @@ export function ChatList({
     return own?.length ? own : (bots ?? [])
   }, [profileTiles, bots])
   const newChatIn = useMemo(() => (canGroup ? newChatProfiles(columnBots, allLeftOut) : []), [canGroup, columnBots, allLeftOut])
+  const [botQuery, setBotQuery] = useState('')
+  const shownBots = useMemo(() => newChatIn.filter(bot => matchesBot(bot.name, bot.title, botQuery)), [newChatIn, botQuery])
   const newChatMenu = useHeaderMenu()
   const includeInAll = (name: string, on: boolean) => {
     const next = on ? leftOut.filter(p => p.toLowerCase() !== name.toLowerCase()) : [...leftOut, name]
@@ -769,7 +772,8 @@ export function ChatList({
         <HeaderMenu
           menu={newChatMenu}
           title={t('New chat in')}
-          items={newChatIn.map(bot => ({ key: bot.name, label: bot.title || bot.name, onClick: () => onNewChat(bot.name) }))}
+          items={shownBots.map(bot => ({ key: bot.name, label: bot.title || bot.name, onClick: () => onNewChat(bot.name) }))}
+          search={{ value: botQuery, onChange: setBotQuery, placeholder: t('Search bots'), empty: t('No bots match') }}
         />
         {onHide ? <HideListButton onHide={onHide} /> : null}
       </div>

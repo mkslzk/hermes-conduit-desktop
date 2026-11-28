@@ -14,6 +14,7 @@ import {
 import { starterFace } from "../state/starterFaces";
 import { useAvatar, useFace } from "../state/useBots";
 import { canDelete } from "../state/botActions";
+import { matchesBot } from "../state/botSearch";
 import { HideListButton } from "./HideListButton";
 import { Icon } from "./icons";
 import { inviteRowLine, type RoomInvite } from "../state/roomInvites";
@@ -385,8 +386,11 @@ export function BotsHome({
   const tiles: MixedTile[] = mixed
     ? mixedTiles(hostUrl!, bots ?? [], otherBots, savedHosts, mixedOrder)
     : (bots ?? []).map((bot) => ({ key: bot.name, host: hostUrl ?? "", bot, own: true }));
-  const shownKeys = tiles.map((tile) => tile.key);
-  const canMove = tiles.length > 1 && !!(mixed ? onMoveMixed : onMoveBot);
+  const [botQuery, setBotQuery] = useState("");
+  const foundTiles = tiles.filter((tile) => matchesBot(tile.bot.name, tile.bot.title, botQuery));
+  // Dragging a filtered subset would rewrite the whole order with only its rows, so keep it still while searching.
+  const shownKeys = (botQuery ? foundTiles : tiles).map((tile) => tile.key);
+  const canMove = !botQuery && tiles.length > 1 && !!(mixed ? onMoveMixed : onMoveBot);
   const move = (dragged: string, target: string | null) => {
     if (mixed) onMoveMixed?.(dragged, target, shownKeys);
     else onMoveBot?.(dragged, target, shownKeys);
@@ -1107,6 +1111,15 @@ export function BotsHome({
     <section className={`chatlist bot-side${draft ? " drafting" : ""}`} aria-label={t("Bots")}>
       <div className="chatlist-head bot-side-head">
         <h1>{t("Bots")}</h1>
+        <div className="chatlist-search bot-side-search" onMouseDown={(e) => e.currentTarget.querySelector("input")?.focus()}>
+          <Icon name="search" />
+          <input aria-label={t("Search bots")} value={botQuery} onChange={(e) => setBotQuery(e.target.value)} placeholder={t("Search bots")} />
+          {botQuery ? (
+            <button className="chatlist-search-clear" aria-label={t("Clear search")} title={t("Clear search")} onClick={() => setBotQuery("")}>
+              <Icon name="close" />
+            </button>
+          ) : null}
+        </div>
         {onNewBot ? (
           <button className="round" aria-label={t("New Bot")} title={t("New Bot")} onClick={onNewBot} disabled={busy}>
             <Icon name="plus" />
@@ -1135,15 +1148,19 @@ export function BotsHome({
       >
         {bots === null && !error ? <div className="empty">{t("Loading your bots…")}</div> : null}
         {error ? <div className="empty">{t("Couldn’t load your bots: {error}", { error })}</div> : null}
+        {botQuery && !foundTiles.length ? <div className="empty">{t("No bots match")}</div> : null}
         {sections
-          ? sections.map((section) => (
+          ? sections
+              .map((section) => ({ ...section, items: section.items.filter((tile) => matchesBot(tile.bot.name, tile.bot.title, botQuery)) }))
+              .filter((section) => section.items.length)
+              .map((section) => (
               <Fragment key={section.key}>
                 {heading(section)}
                 {folded.includes(section.key) ? null : section.items.map(botRow)}
                 {folded.includes(section.key) ? null : roomsIn(section.name).map(ownRoomRow)}
               </Fragment>
             ))
-          : tiles.map(botRow)}
+          : foundTiles.map(botRow)}
         {showRooms ? (
           <div className="bot-side-section" role="group" aria-label={t("Group chats")} {...roomsGridDrop}>
             <div className="bot-side-section-head">

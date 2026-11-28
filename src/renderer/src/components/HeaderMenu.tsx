@@ -71,10 +71,22 @@ export function HeaderMenuButton({ menu }: { menu: ReturnType<typeof useHeaderMe
   )
 }
 
-export function HeaderMenu({ menu, items, title }: { menu: ReturnType<typeof useHeaderMenu>; items: HeaderMenuItem[]; title?: string }) {
+export interface HeaderMenuSearch {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  /** Shown when the filter leaves no lines. */
+  empty?: string
+}
+
+export function HeaderMenu({ menu, items, title, search }: { menu: ReturnType<typeof useHeaderMenu>; items: HeaderMenuItem[]; title?: string; search?: HeaderMenuSearch }) {
   const { open, setOpen } = menu
   const box = useRef<HTMLDivElement>(null)
+  const field = useRef<HTMLInputElement>(null)
   const [at, setAt] = useState<{ left: number; top: number } | null>(null)
+  useEffect(() => {
+    if (open && !open.inside) field.current?.focus()
+  }, [open !== null, open?.inside])
   // Kept inside the window by its measured size, which changes as it shows another line's lines.
   useLayoutEffect(() => {
     if (!open) return setAt(null)
@@ -134,7 +146,20 @@ export function HeaderMenu({ menu, items, title }: { menu: ReturnType<typeof use
       ) : (
         <>
           {title ? <div className="menu-title">{title}</div> : null}
+          {search ? (
+            <div className="menu-search" onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
+              <Icon name="search" />
+              <input
+                ref={field}
+                aria-label={search.placeholder ?? t('Search')}
+                value={search.value}
+                placeholder={search.placeholder ?? t('Search')}
+                onChange={e => search.onChange(e.target.value)}
+              />
+            </div>
+          ) : null}
           {items.map(line)}
+          {!items.length && search?.value && search.empty ? <div className="menu-note">{search.empty}</div> : null}
         </>
       )}
     </div>
