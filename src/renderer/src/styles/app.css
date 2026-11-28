@@ -11799,6 +11799,12 @@ button.secondary.danger {
 }
 
 /* The bots list beside a bot's chat, a group chat, New Bot and Edit Bot (BotsHome's side layout). */
+.bot-side-head .bot-side-search {
+  flex: 1;
+  max-width: 240px;
+  margin: 0;
+}
+
 .bot-side-head .round {
   width: 30px;
   height: 30px;

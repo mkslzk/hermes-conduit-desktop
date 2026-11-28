@@ -79,3 +79,17 @@ describe("Bots' group chats in a combined group (desktop#231)", () => {
     expect(renderToStaticMarkup(createElement(BotsHome as never, props as never))).not.toContain('room-draft')
   })
 })
+
+
+describe('the Bots screen search', () => {
+  it('draws a search field in the header', async () => {
+    const path = '../src/renderer/src/components/BotsHome.tsx'
+    const { BotsHome } = (await import(/* @vite-ignore */ path)) as { BotsHome: unknown }
+    const html = renderToStaticMarkup(createElement(BotsHome as never, {
+      bots: [bot('nahida')], error: null, runningProfiles: new Set(), rooms: [], canStartRooms: true,
+      onOpen: () => {}, onOpenRoom: () => {}, onCreateRoom: async () => ({}), side: {}
+    } as never))
+    expect(html).toContain('bot-side-search')
+    expect(html).toContain('Search bots')
+  })
+})

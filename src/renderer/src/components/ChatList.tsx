@@ -371,6 +371,10 @@ export function ChatList({
   const [botQuery, setBotQuery] = useState('')
   const shownBots = useMemo(() => newChatIn.filter(bot => matchesBot(bot.name, bot.title, botQuery)), [newChatIn, botQuery])
   const newChatMenu = useHeaderMenu()
+  // The field exists only while the menu is open: a query left over would greet the next open with stale text.
+  useEffect(() => {
+    if (!newChatMenu.open && botQuery) setBotQuery('')
+  }, [newChatMenu.open, botQuery])
   const includeInAll = (name: string, on: boolean) => {
     const next = on ? leftOut.filter(p => p.toLowerCase() !== name.toLowerCase()) : [...leftOut, name]
     setLeftOut(next)

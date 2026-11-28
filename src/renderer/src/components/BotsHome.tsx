@@ -14,7 +14,7 @@ import {
 import { starterFace } from "../state/starterFaces";
 import { useAvatar, useFace } from "../state/useBots";
 import { canDelete } from "../state/botActions";
-import { matchesBot } from "../state/botSearch";
+import { matchesBot, sectionOpen } from "../state/botSearch";
 import { HideListButton } from "./HideListButton";
 import { Icon } from "./icons";
 import { inviteRowLine, type RoomInvite } from "../state/roomInvites";
@@ -388,6 +388,7 @@ export function BotsHome({
     : (bots ?? []).map((bot) => ({ key: bot.name, host: hostUrl ?? "", bot, own: true }));
   const [botQuery, setBotQuery] = useState("");
   const foundTiles = tiles.filter((tile) => matchesBot(tile.bot.name, tile.bot.title, botQuery));
+  const foundHidden = (hidden ?? []).filter((bot) => matchesBot(bot.name, bot.title, botQuery));
   // Dragging a filtered subset would rewrite the whole order with only its rows, so keep it still while searching.
   const shownKeys = (botQuery ? foundTiles : tiles).map((tile) => tile.key);
   const canMove = !botQuery && tiles.length > 1 && !!(mixed ? onMoveMixed : onMoveBot);
@@ -1148,7 +1149,7 @@ export function BotsHome({
       >
         {bots === null && !error ? <div className="empty">{t("Loading your bots…")}</div> : null}
         {error ? <div className="empty">{t("Couldn’t load your bots: {error}", { error })}</div> : null}
-        {botQuery && !foundTiles.length ? <div className="empty">{t("No bots match")}</div> : null}
+        {botQuery && !foundTiles.length && !foundHidden.length ? <div className="empty">{t("No bots match")}</div> : null}
         {sections
           ? sections
               .map((section) => ({ ...section, items: section.items.filter((tile) => matchesBot(tile.bot.name, tile.bot.title, botQuery)) }))
@@ -1156,8 +1157,8 @@ export function BotsHome({
               .map((section) => (
               <Fragment key={section.key}>
                 {heading(section)}
-                {folded.includes(section.key) ? null : section.items.map(botRow)}
-                {folded.includes(section.key) ? null : roomsIn(section.name).map(ownRoomRow)}
+                {sectionOpen(folded, section.key, botQuery) ? section.items.map(botRow) : null}
+                {sectionOpen(folded, section.key, botQuery) ? roomsIn(section.name).map(ownRoomRow) : null}
               </Fragment>
             ))
           : foundTiles.map(botRow)}
@@ -1210,13 +1211,13 @@ export function BotsHome({
             ) : null}
           </div>
         ) : null}
-        {hidden && hidden.length > 0 ? (
+        {foundHidden.length > 0 ? (
           <div className="bot-side-section bots-hidden">
-            <button className="link bot-side-hidden" aria-expanded={showHidden} onClick={() => setShowHidden(!showHidden)}>
-              {t("Hidden")} ({hidden.length})
+            <button className="link bot-side-hidden" aria-expanded={showHidden || !!botQuery} onClick={() => !botQuery && setShowHidden(!showHidden)}>
+              {t("Hidden")} ({foundHidden.length})
             </button>
-            {showHidden
-              ? hidden.map((bot) => (
+            {showHidden || botQuery
+              ? foundHidden.map((bot) => (
                   <div key={bot.name} className="row bot-side-bot hidden-row">
                     <span className="bot-side-face">
                       <BotAvatar bot={bot} size={30} moving />
